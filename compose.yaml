@@ -1,0 +1,64 @@
+# Comments are provided throughout this file to help you get started.
+# If you need more help, visit the Docker Compose reference guide at
+# https://docs.docker.com/go/compose-spec-reference/
+
+services:
+  university-management-dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: jikmunn-university-management-dashboard:latest
+    container_name: university-management-dashboard
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      # Explicitly set these environment variables to ensure proper networking
+      HOSTNAME: 0.0.0.0
+      PORT: 3000
+    ports:
+      # Map host port 3000 to container port 3000
+      - '3000:3000'
+    restart: unless-stopped
+    # Add healthcheck to verify the service is responding
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'wget',
+          '--quiet',
+          '--tries=1',
+          '--spider',
+          'http://localhost:3000',
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+# Uncomment the database section if you need PostgreSQL
+# Remember to create the db/password.txt file with your database password
+#   db:
+#     image: postgres:15
+#     restart: always
+#     environment:
+#       POSTGRES_DB: university_management
+#       POSTGRES_USER: postgres
+#       POSTGRES_PASSWORD_FILE: /run/secrets/db-password
+#     volumes:
+#       - db-data:/var/lib/postgresql/data
+#     ports:
+#       - "5432:5432"
+#     secrets:
+#       - db-password
+#     healthcheck:
+#       test: ["CMD-SHELL", "pg_isready -U postgres"]
+#       interval: 10s
+#       timeout: 5s
+#       retries: 5
+
+# volumes:
+#   db-data:
+
+# secrets:
+#   db-password:
+#     file: db/password.txt
